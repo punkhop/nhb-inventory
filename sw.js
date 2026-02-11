@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nhb-inventory-v4';
+const CACHE_NAME = 'nhb-inventory-v5';
 const ASSETS = ['/', '/index.html', '/app.js', '/manifest.json', '/icon-192.png', '/icon-512.png', '/apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
