@@ -257,34 +257,12 @@ window.toggleTheme = toggleTheme;
 // Updated timestamp
 document.querySelector('.updated').textContent = 'Updated: ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Service worker with update detection
+// Service worker — auto-updates on open when online
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(reg => {
-    // Check for updates on load
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          // New version available — show banner
-          document.getElementById('update-banner').classList.add('show');
-        }
-      });
-    });
-  }).catch(() => {});
-
-  // When the new SW takes over, reload the page
+  navigator.serviceWorker.register('sw.js').catch(() => {});
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     window.location.reload();
   });
 }
-
-function applyUpdate() {
-  navigator.serviceWorker.getRegistration().then(reg => {
-    if (reg && reg.waiting) {
-      reg.waiting.postMessage({ type: 'SKIP_WAITING' });
-    }
-  });
-}
-window.applyUpdate = applyUpdate;
 
 render();
