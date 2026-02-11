@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# NHB Inventory Sync — pulls from Notion, rebuilds the PWA
-# Usage: ./sync.sh [--push]
+# NHB Inventory Sync — pulls from Notion, rebuilds the PWA, deploys
+# Usage: ./sync.sh           (build only)
+#        ./sync.sh --deploy  (build + deploy to Cloudflare Pages + git push)
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 NOTION_TOKEN="${NOTION_TOKEN:-$(cat "$SCRIPT_DIR/.notion-token" 2>/dev/null || true)}"
@@ -130,19 +131,29 @@ print('index.html updated')
 "
 
 # Bump service worker cache version
-CURRENT=$(grep -oP "nhb-inventory-v\K\d+" "$SCRIPT_DIR/sw.js")
+CURRENT=$(grep -oE "nhb-inventory-v[0-9]+" "$SCRIPT_DIR/sw.js" | grep -oE "[0-9]+")
 NEXT=$((CURRENT + 1))
 sed -i '' "s/nhb-inventory-v${CURRENT}/nhb-inventory-v${NEXT}/" "$SCRIPT_DIR/sw.js"
 echo "Service worker bumped to v${NEXT}"
 
 echo ""
 echo "Sync complete! $ITEM_COUNT items embedded."
-echo "Test locally: cd $SCRIPT_DIR && python3 -m http.server 8000"
 
-if [[ "${1:-}" == "--push" ]]; then
+if [[ "${1:-}" == "--deploy" ]]; then
     cd "$SCRIPT_DIR"
+
+    # Deploy to Cloudflare Pages
+    echo "Deploying to Cloudflare Pages..."
+    wrangler pages deploy "$SCRIPT_DIR" --project-name nhb-inventory --commit-dirty=true
+
+    # Commit and push to GitHub
     git add index.html sw.js
     git commit -m "sync: update inventory data ($ITEM_COUNT items)"
     git push
-    echo "Pushed to GitHub!"
+    echo ""
+    echo "Live at https://nhb-inventory.pages.dev/"
+    echo "Users will see 'Update available' next time they open the app."
+else
+    echo "Test locally: cd $SCRIPT_DIR && python3 -m http.server 8000"
+    echo "Run with --deploy to push live."
 fi
