@@ -73,10 +73,10 @@ while True:
             continue
 
         item = {'n': name}
-        a = sel('Area')
-        if a: item['a'] = a
-        l = txt('Location')
-        if l: item['l'] = l
+        a = multi('Area')
+        if a: item['a'] = ', '.join(a)
+        l = multi('Location')
+        if l: item['l'] = ', '.join(l)
         q = num('Quantity')
         if q is not None: item['q'] = q
         t = txt('Note')
