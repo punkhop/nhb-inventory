@@ -257,11 +257,19 @@ window.toggleTheme = toggleTheme;
 // Updated timestamp
 document.querySelector('.updated').textContent = 'Updated: ' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
-// Service worker — auto-updates on open when online
+// Service worker — auto-updates on open or switch-back
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('sw.js').catch(() => {});
   navigator.serviceWorker.addEventListener('controllerchange', () => {
     window.location.reload();
+  });
+  // Recheck for updates when user switches back to the app
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg) reg.update();
+      });
+    }
   });
 }
 
