@@ -3,7 +3,7 @@
   "short_name": "NHB",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FF8D28",
+  "background_color": "#F05630",
   "theme_color": "#1a1a1a",
   "description": "No Holes Barred camp inventory — search items, bins, and areas offline",
   "icons": [
